@@ -1,7 +1,7 @@
 package br.dev.nathan.tarefas.model;
 
 public enum Status {
-	
+	// BOM UTILIZAR ENUMERADOR QUANDO FOR PARA PADRONIZAR LISTAS
 	NAO_INICIADA, EM_ANDAMENTO, FINALIZADO, EM_ATRASO
 
 }

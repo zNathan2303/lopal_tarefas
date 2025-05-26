@@ -12,6 +12,9 @@ import java.util.List;
 import br.dev.nathan.tarefas.dao.FuncionarioDAO;
 import br.dev.nathan.tarefas.model.Funcionario;
 import br.dev.nathan.tarefas.model.Tarefa;
+import br.dev.nathan.tarefas.ui.FrameFuncionario;
+import br.dev.nathan.tarefas.ui.FrameListaFuncionario;
+import br.dev.nathan.tarefas.utils.Utils;
 
 public class Main {
 	
@@ -20,45 +23,18 @@ public class Main {
 
 	public static void main(String[] args) {
 		
-		List<String> frutas = new ArrayList<>();
-		List<Funcionario> funcionarios = new ArrayList<>();
-		List<Double> numeros = new ArrayList<>();
+		new FrameListaFuncionario();
 		
-		frutas.add("tomate");
-		frutas.add("manga");
-		frutas.add("morango");
-		frutas.add("banana");
-		
-		numeros.add(12.5);
-		numeros.add(1.3);
-		numeros.add(45.7);
-		
-		Funcionario funcionario = new Funcionario();
-		funcionario.setCodigo(4);
-		funcionario.setNome("oi");
-		funcionario.setMatricula("8888");
-		funcionario.setEmail("ola@gmail.com");
-		
-		Funcionario funcionario2 = new Funcionario();
-		funcionario2.setCodigo(7);
-		funcionario2.setNome("fabio");
-		funcionario2.setMatricula("4444");
-		funcionario2.setEmail("fabio@gmail.com");
-		
-		funcionarios.addAll(List.of(funcionario, funcionario2, funcionario, funcionario));
-		
-		System.out.println(frutas);
-		System.out.println(funcionarios);
-		
-		// para cada funcionario na lista atribuia na variavel f
-		for (Funcionario f : funcionarios) {
-			System.out.println(f.getNome() + " - " + f.getEmail());
-		}
+//		FuncionarioDAO dao = new FuncionarioDAO(new Funcionario());
+//		List<Funcionario> funcionarios = dao.showEmployees();
 //		
-//		FuncionarioDAO dao = new FuncionarioDAO(funcionario);
-//		dao.gravar();
-//		
-//		System.out.println(funcionario.toString());
+//		for (Funcionario f : funcionarios) {
+//			System.out.println(f.getNome());
+//			System.out.println(f.getEmail());
+//			System.out.println("----------------");
+//		}
+		
+		//new FrameFuncionario();
 		
 	}
 	
