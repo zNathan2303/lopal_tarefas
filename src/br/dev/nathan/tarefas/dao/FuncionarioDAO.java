@@ -25,7 +25,7 @@ public class FuncionarioDAO {
 		
 		try {
 			
-			BufferedWriter bw = ff.getBufferedWriter();
+			BufferedWriter bw = ff.getBufferedWriterFuncionarios();
 			
 			bw.write(funcionario.toString());
 			bw.flush();
@@ -41,7 +41,7 @@ public class FuncionarioDAO {
 		List<Funcionario> funcionarios = new ArrayList<>();
 		
 		try {
-			BufferedReader br = ff.getBufferedReader();
+			BufferedReader br = ff.getBufferedReaderFuncionarios();
 			String linha = br.readLine(); // LER A PRIMEIRA LINHA E POSICIONAR O PONTEIRO NA PROXIMA LINHA
 			
 			do {

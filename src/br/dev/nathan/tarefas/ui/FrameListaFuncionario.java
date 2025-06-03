@@ -13,8 +13,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 import br.dev.nathan.tarefas.dao.FuncionarioDAO;
 import br.dev.nathan.tarefas.model.Funcionario;
@@ -22,7 +20,6 @@ import br.dev.nathan.tarefas.model.Funcionario;
 public class FrameListaFuncionario {
 
 	private JLabel labelTitulo;
-	private DefaultTableModel modeloTabela;
 	private JTable tableFuncionarios;
 	private JScrollPane scrollFuncionarios;
 	private JButton btnNovo;
@@ -63,9 +60,7 @@ public class FrameListaFuncionario {
 
 		// Obter lista de funcionários
 		FuncionarioDAO dao = new FuncionarioDAO(null);
-
 		List<Funcionario> funcionarios = dao.showEmployees();
-
 		Object[][] dados = new Object[funcionarios.size()][3];
 
 		int linha = 0;
@@ -75,13 +70,18 @@ public class FrameListaFuncionario {
 			dados[linha][2] = f.getEmail();
 			linha++;
 		}
-		modeloTabela.setDataVector(dados, colunas);
 
-		modeloTabela = new DefaultTableModel(dados, colunas);
-		tableFuncionarios = new JTable(modeloTabela);
+		tableFuncionarios = new JTable(dados, colunas);
+
+		// Bloqueia o usuário de reordenar as colunas, pegando o header da tabela e
+		// definindo se o usuário pode reorganizar ou não
+		tableFuncionarios.getTableHeader().setReorderingAllowed(false);
+		
+		
+
 		scrollFuncionarios = new JScrollPane(tableFuncionarios);
-		scrollFuncionarios.setBounds(20, 70, 550, 300);
 
+		scrollFuncionarios.setBounds(20, 70, 550, 300);
 		btnNovo.setBounds(20, 380, 130, 40);
 		btnExcluir.setBounds(160, 380, 130, 40);
 		btnAlterar.setBounds(300, 380, 130, 40);
@@ -119,23 +119,6 @@ public class FrameListaFuncionario {
 
 		tela.setVisible(true);
 
-	}
-
-	private void atualizarLista() {
-		// Obter lista de funcionários
-		FuncionarioDAO dao = new FuncionarioDAO(null);
-
-		List<Funcionario> funcionarios = dao.showEmployees();
-
-		Object[][] dados = new Object[funcionarios.size()][3];
-
-		int linha = 0;
-		for (Funcionario f : funcionarios) {
-			dados[linha][0] = f.getCodigo();
-			dados[linha][1] = f.getNome();
-			dados[linha][2] = f.getEmail();
-			linha++;
-		}
 	}
 
 }
