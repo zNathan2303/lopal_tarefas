@@ -99,7 +99,8 @@ public class FrameFuncionario {
 
 				FuncionarioDAO dao = new FuncionarioDAO(funcionario);
 				dao.gravar();
-				FrameListaFuncionario listaFuncionarios = new FrameListaFuncionario();
+				
+				FrameListaFuncionario listaFuncionarios = new FrameListaFuncionario(null);
 
 				JOptionPane.showMessageDialog(tela, txtNome.getText() + " gravado com sucesso!", "Sucesso",
 						JOptionPane.INFORMATION_MESSAGE);

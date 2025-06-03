@@ -10,8 +10,11 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import br.dev.nathan.tarefas.dao.FuncionarioDAO;
 import br.dev.nathan.tarefas.model.Funcionario;
@@ -19,6 +22,7 @@ import br.dev.nathan.tarefas.model.Funcionario;
 public class FrameListaFuncionario {
 
 	private JLabel labelTitulo;
+	private DefaultTableModel modeloTabela;
 	private JTable tableFuncionarios;
 	private JScrollPane scrollFuncionarios;
 	private JButton btnNovo;
@@ -32,13 +36,9 @@ public class FrameListaFuncionario {
 		criarTela(telaOpcoes);
 	}
 
-	public FrameListaFuncionario() {
-		obterListaFuncionarios();
-	}
-
 	private void criarTela(JFrame telaOpcoes) {
 		JDialog tela = new JDialog(telaOpcoes, "Cadastro de funcionários", true);
-		tela.setSize(600, 600);
+		tela.setSize(605, 480);
 		tela.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		tela.setResizable(false);
 		tela.setLayout(null);
@@ -47,36 +47,13 @@ public class FrameListaFuncionario {
 		Container painel = tela.getContentPane();
 
 		labelTitulo = new JLabel("Cadastro de funcionários");
-		labelTitulo.setBounds(10, 20, 500, 30);
+		labelTitulo.setBounds(20, 20, 500, 30);
 		labelTitulo.setFont(fontTitulo);
 
 		btnNovo = new JButton("Cadastrar");
-
-		obterListaFuncionarios();
-
-		scrollFuncionarios = new JScrollPane(tableFuncionarios);
-		scrollFuncionarios.setBounds(10, 70, 500, 300);
-
-		btnNovo.setBounds(10, 380, 150, 40);
-
-		painel.add(labelTitulo);
-		painel.add(scrollFuncionarios);
-		painel.add(btnNovo);
-
-		btnNovo.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				new FrameFuncionario(tela);
-
-			}
-		});
-
-		tela.setVisible(true);
-
-	}
-
-	private void obterListaFuncionarios() {
+		btnExcluir = new JButton("Excluir");
+		btnAlterar = new JButton("Alterar");
+		btnSair = new JButton("Sair");
 
 		// CRIAÇÃO DA TABELA
 		String[] colunas = new String[3];
@@ -98,9 +75,67 @@ public class FrameListaFuncionario {
 			dados[linha][2] = f.getEmail();
 			linha++;
 		}
+		modeloTabela.setDataVector(dados, colunas);
 
-		tableFuncionarios = new JTable(dados, colunas);
-		tableFuncionarios.getModel();
+		modeloTabela = new DefaultTableModel(dados, colunas);
+		tableFuncionarios = new JTable(modeloTabela);
+		scrollFuncionarios = new JScrollPane(tableFuncionarios);
+		scrollFuncionarios.setBounds(20, 70, 550, 300);
+
+		btnNovo.setBounds(20, 380, 130, 40);
+		btnExcluir.setBounds(160, 380, 130, 40);
+		btnAlterar.setBounds(300, 380, 130, 40);
+		btnSair.setBounds(440, 380, 130, 40);
+
+		painel.add(labelTitulo);
+		painel.add(scrollFuncionarios);
+		painel.add(btnNovo);
+		painel.add(btnExcluir);
+		painel.add(btnAlterar);
+		painel.add(btnSair);
+
+		btnNovo.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new FrameFuncionario(tela);
+
+			}
+		});
+
+		btnSair.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int resposta = JOptionPane.showConfirmDialog(tela, "Confirma a saída do sistema?", "Sair do sistema",
+						JOptionPane.YES_NO_OPTION);
+
+				if (resposta == 0) {
+					tela.dispose();
+				}
+
+			}
+		});
+
+		tela.setVisible(true);
+
+	}
+
+	private void atualizarLista() {
+		// Obter lista de funcionários
+		FuncionarioDAO dao = new FuncionarioDAO(null);
+
+		List<Funcionario> funcionarios = dao.showEmployees();
+
+		Object[][] dados = new Object[funcionarios.size()][3];
+
+		int linha = 0;
+		for (Funcionario f : funcionarios) {
+			dados[linha][0] = f.getCodigo();
+			dados[linha][1] = f.getNome();
+			dados[linha][2] = f.getEmail();
+			linha++;
+		}
 	}
 
 }
