@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 import br.dev.nathan.tarefas.dao.FuncionarioDAO;
 import br.dev.nathan.tarefas.model.Funcionario;
@@ -20,6 +21,7 @@ import br.dev.nathan.tarefas.model.Funcionario;
 public class FrameListaFuncionario {
 
 	private JLabel labelTitulo;
+	private DefaultTableModel modeloLista;
 	private JTable tableFuncionarios;
 	private JScrollPane scrollFuncionarios;
 	private JButton btnNovo;
@@ -52,33 +54,30 @@ public class FrameListaFuncionario {
 		btnAlterar = new JButton("Alterar");
 		btnSair = new JButton("Sair");
 
-		// CRIAÇÃO DA TABELA
-		String[] colunas = new String[3];
-		colunas[0] = "Código";
-		colunas[1] = "Nome";
-		colunas[2] = "Email";
+		// Atribui os dados e as colunas que a tabela terá
+		modeloLista = new DefaultTableModel() {
 
-		// Obter lista de funcionários
-		FuncionarioDAO dao = new FuncionarioDAO(null);
-		List<Funcionario> funcionarios = dao.showEmployees();
-		Object[][] dados = new Object[funcionarios.size()][3];
+			// Sobrescreve o método isCellEditable da classe JTable para sempre retornar
+			// false, fazendo com que as células da tabela não possam ser editadas
+			@Override
+			public boolean isCellEditable(int rowIndex, int colIndex) {
+				return false;
+			}
 
-		int linha = 0;
-		for (Funcionario f : funcionarios) {
-			dados[linha][0] = f.getCodigo();
-			dados[linha][1] = f.getNome();
-			dados[linha][2] = f.getEmail();
-			linha++;
-		}
+		};
 
-		tableFuncionarios = new JTable(dados, colunas);
+		atualizarTabela();
+
+		tableFuncionarios = new JTable(modeloLista);
 
 		// Bloqueia o usuário de reordenar as colunas, pegando o header da tabela e
-		// definindo se o usuário pode reorganizar ou não
+		// definindo se o usuário pode reordenar ou não
 		tableFuncionarios.getTableHeader().setReorderingAllowed(false);
-		
-		
 
+		// Faz o clique do usuário selecionar a linha, e não a célula individual
+		tableFuncionarios.setFocusable(false);
+
+		// Adiciona a tabela a um painel com scroll
 		scrollFuncionarios = new JScrollPane(tableFuncionarios);
 
 		scrollFuncionarios.setBounds(20, 70, 550, 300);
@@ -98,7 +97,23 @@ public class FrameListaFuncionario {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new FrameFuncionario(tela);
+				new FrameFuncionario(tela, FrameListaFuncionario.this);
+
+			}
+		});
+
+		btnExcluir.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				int resposta = JOptionPane.showConfirmDialog(tela, "Deseja excluir o funcionário cadastrado?",
+						"Exclusão de funcionário", JOptionPane.YES_NO_OPTION);
+
+				if (resposta == 0) {
+					int excluirLinha = tableFuncionarios.getSelectedRow();
+					System.out.println(excluirLinha);
+				}
 
 			}
 		});
@@ -118,6 +133,31 @@ public class FrameListaFuncionario {
 		});
 
 		tela.setVisible(true);
+
+	}
+
+	public void atualizarTabela() {
+
+		// Criação da tabela
+		String[] colunas = new String[3];
+		colunas[0] = "Código";
+		colunas[1] = "Nome";
+		colunas[2] = "Email";
+
+		// Obter lista de funcionários
+		FuncionarioDAO dao = new FuncionarioDAO(null);
+		List<Funcionario> funcionarios = dao.showEmployees();
+		Object[][] dados = new Object[funcionarios.size()][3];
+
+		int linha = 0;
+		for (Funcionario f : funcionarios) {
+			dados[linha][0] = f.getCodigo();
+			dados[linha][1] = f.getNome();
+			dados[linha][2] = f.getEmail();
+			linha++;
+		}
+
+		modeloLista.setDataVector(dados, colunas);
 
 	}
 

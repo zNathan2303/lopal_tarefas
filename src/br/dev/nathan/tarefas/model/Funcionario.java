@@ -6,11 +6,11 @@ public class Funcionario {
 	private String nome;
 	private String telefone;
 	private String email;
-	
+
 	public String getCodigo() {
 		return codigo;
 	}
-	
+
 	public void setCodigo(String codigo) {
 		this.codigo = codigo;
 	}
@@ -38,8 +38,9 @@ public class Funcionario {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
-	// POR PADRAO ELE RETORNA AONDE O OBJETO ESTÁ NA MEMORIA RAM, POR ISSO FOI MUDADO
+
+	// Por padrão o método toString retorna aonde o objeto está na memória RAM, por
+	// isso foi mudado
 	@Override
 	public String toString() {
 		return this.codigo + "," + this.nome + "," + this.telefone + "," + this.email + "\n";

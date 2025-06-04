@@ -65,6 +65,15 @@ public class FrameListaTarefa {
 		painel.add(btnAlterar);
 		painel.add(btnSair);
 		
+		btnNovo.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new FrameTarefa(tela);
+
+			}
+		});
+		
 		btnSair.addActionListener(new ActionListener() {
 
 			@Override

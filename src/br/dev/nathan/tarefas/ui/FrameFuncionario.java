@@ -30,8 +30,11 @@ public class FrameFuncionario {
 	private JButton btnSalvar;
 	private JButton btnSair;
 
-	// METODO CONSTRUTOR NÃO RETORNA NADA E SEMPRE É PUBLICO
-	public FrameFuncionario(JDialog telaLista) {
+	private FrameListaFuncionario frameLista;
+
+	// Método construtor não retorno nada e sempre é público
+	public FrameFuncionario(JDialog telaLista, FrameListaFuncionario frameLista) {
+		this.frameLista = frameLista;
 		criarTela(telaLista);
 	}
 
@@ -41,7 +44,7 @@ public class FrameFuncionario {
 		tela.setSize(400, 400);
 		tela.setResizable(false);
 		tela.setLocationRelativeTo(telaLista);
-		// APOS CLICAR NO X FECHA A TELA
+		// Após clicar no X fecha a tela
 		tela.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		Container painel = tela.getContentPane();
@@ -50,7 +53,8 @@ public class FrameFuncionario {
 		labelCodigo.setBounds(20, 20, 200, 30);
 		txtCodigo = new JTextField();
 		txtCodigo.setBounds(20, 50, 200, 30);
-		// PARA A PESSOA NÃO PODER MEXER NA LABEL DO CODIGO
+		// Desativa o JTextField para ninguem colocar nada nele, pois já será obtido de
+		// forma automática
 		txtCodigo.setEnabled(false);
 
 		labelNome = new JLabel("Nome:");
@@ -91,18 +95,30 @@ public class FrameFuncionario {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Funcionario funcionario = new Funcionario();
-				funcionario.setCodigo(Utils.gerarUUID());
-				funcionario.setNome(txtNome.getText());
-				funcionario.setTelefone(txtTelefone.getText());
-				funcionario.setEmail(txtEmail.getText());
 
-				FuncionarioDAO dao = new FuncionarioDAO(funcionario);
-				dao.gravar();
+				// Irá retornar um erro se algum dos campos está vazio, para evitar problemas de
+				// linhas sem informações no arquivo
+				if (txtNome.getText().isEmpty() || txtTelefone.getText().isEmpty() || txtEmail.getText().isEmpty()) {
+					JOptionPane.showMessageDialog(tela, "Nenhum campo pode estar vazio!", "Erro",
+							JOptionPane.ERROR_MESSAGE);
+				} else {
 
-				JOptionPane.showMessageDialog(tela, txtNome.getText() + " gravado com sucesso!", "Sucesso",
-						JOptionPane.INFORMATION_MESSAGE);
-				limparFormulario();
+					Funcionario funcionario = new Funcionario();
+					funcionario.setCodigo(Utils.gerarUUID());
+					funcionario.setNome(txtNome.getText());
+					funcionario.setTelefone(txtTelefone.getText());
+					funcionario.setEmail(txtEmail.getText());
+
+					FuncionarioDAO dao = new FuncionarioDAO(funcionario);
+					dao.gravar();
+
+					frameLista.atualizarTabela();
+
+					JOptionPane.showMessageDialog(tela, txtNome.getText() + " gravado com sucesso!", "Sucesso",
+							JOptionPane.INFORMATION_MESSAGE);
+					limparFormulario();
+
+				}
 
 			}
 		});
@@ -128,7 +144,8 @@ public class FrameFuncionario {
 		txtNome.setText(null);
 		txtEmail.setText(null);
 		txtTelefone.setText(null);
-		// MANDA O PONTEIRO PARA A TXTFIELD NOME, QUE O FOCO VAI PARA ELE
+		// Manda o foco para o JTextField do nome, em que ele fica ativo para digitar de
+		// forma automática
 		txtNome.requestFocus();
 	}
 
