@@ -54,12 +54,10 @@ public class FrameListaFuncionario {
 		btnAlterar = new JButton("Alterar");
 		btnSair = new JButton("Sair");
 
-		// Atribui os dados e as colunas que a tabela terá
 		modeloLista = new DefaultTableModel() {
 
 			// Sobrescreve o método isCellEditable da classe DefaultTableModel para sempre
-			// retornar
-			// false, fazendo com que as células da tabela não possam ser editadas
+			// retornar false, fazendo com que as células da tabela não possam ser editadas
 			@Override
 			public boolean isCellEditable(int rowIndex, int colIndex) {
 				return false;
@@ -98,6 +96,8 @@ public class FrameListaFuncionario {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// Passa a instância atual do FrameListaFuncionario. E o .this é necessário para
+				// fazer referencia a classe FrameListaFuncionario
 				new FrameFuncionario(tela, FrameListaFuncionario.this);
 
 			}
@@ -112,6 +112,9 @@ public class FrameListaFuncionario {
 					int resposta = JOptionPane.showConfirmDialog(tela, "Deseja excluir o funcionário cadastrado?",
 							"Exclusão de funcionário", JOptionPane.YES_NO_OPTION);
 
+					// Forma de obter a quantidade de linhas selecionadas:
+					// tableFuncionarios.getSelectedRowCount();
+
 					if (resposta == 0) {
 						int excluirLinha = tableFuncionarios.getSelectedRow();
 
@@ -121,7 +124,7 @@ public class FrameListaFuncionario {
 
 					}
 				} else {
-					JOptionPane.showMessageDialog(tela, "Precisa selecionar alguma linha para excluir!", "Erro",
+					JOptionPane.showMessageDialog(tela, "É necessário selecionar alguma linha para excluir!", "Erro",
 							JOptionPane.INFORMATION_MESSAGE);
 				}
 
@@ -134,13 +137,9 @@ public class FrameListaFuncionario {
 			public void actionPerformed(ActionEvent e) {
 
 				if (tableFuncionarios.isRowSelected(tableFuncionarios.getSelectedRow())) {
-					int resposta = JOptionPane.showConfirmDialog(tela, "Deseja alterar o funcionário cadastrado?",
-							"Exclusão de funcionário", JOptionPane.YES_NO_OPTION);
 
-					if (resposta == 0) {
-						
+					new FrameAlterarFuncionario(tela, FrameListaFuncionario.this, tableFuncionarios.getSelectedRow());
 
-					}
 				} else {
 					JOptionPane.showMessageDialog(tela, "Precisa selecionar alguma linha para alterar!", "Erro",
 							JOptionPane.INFORMATION_MESSAGE);
@@ -167,6 +166,7 @@ public class FrameListaFuncionario {
 
 	}
 
+	// Atribui os dados e as colunas que a tabela terá
 	public void atualizarTabela() {
 
 		// Criação da tabela

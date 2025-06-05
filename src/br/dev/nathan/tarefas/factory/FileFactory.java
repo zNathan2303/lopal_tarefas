@@ -15,10 +15,10 @@ public class FileFactory {
 	private FileReader fr;
 	private BufferedReader br;
 
-	private String pathFuncionarios = "C:\\Users\\25132656\\tarefa\\funcionarios.csv";
-	private String pathTarefas = "C:\\Users\\25132656\\tarefa\\tarefas.csv";
-	//private String pathFuncionarios = "C:\\Users\\Natha\\tarefa\\funcionarios.csv";
-	//private String pathTarefas = "C:\\Users\\Natha\\tarefa\\tarefas.csv";
+	//private String pathFuncionarios = "C:\\Users\\25132656\\tarefa\\funcionarios.csv";
+	//private String pathTarefas = "C:\\Users\\25132656\\tarefa\\tarefas.csv";
+	private String pathFuncionarios = "C:\\Users\\Natha\\tarefa\\funcionarios.csv";
+	private String pathTarefas = "C:\\Users\\Natha\\tarefa\\tarefas.csv";
 	
 	public BufferedReader getBufferedReaderFuncionarios() throws FileNotFoundException, IOException {
 		fr = new FileReader(pathFuncionarios);
@@ -27,8 +27,16 @@ public class FileFactory {
 	}
 
 	public BufferedWriter getBufferedWriterFuncionarios() throws FileNotFoundException, IOException {
-		// É colocado o true para poder adicionar ao arquivo
+		// É colocado o true para poder adicionar informações no arquivo
 		fw = new FileWriter(pathFuncionarios, true);
+		bw = new BufferedWriter(fw);
+		return bw;
+
+	}
+	
+	public BufferedWriter resetArquivoFuncionarios() throws FileNotFoundException, IOException {
+		// É colocado o false para apagar todos os dados do arquivo
+		fw = new FileWriter(pathFuncionarios, false);
 		bw = new BufferedWriter(fw);
 		return bw;
 
