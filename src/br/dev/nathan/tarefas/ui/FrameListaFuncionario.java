@@ -57,7 +57,8 @@ public class FrameListaFuncionario {
 		// Atribui os dados e as colunas que a tabela terá
 		modeloLista = new DefaultTableModel() {
 
-			// Sobrescreve o método isCellEditable da classe JTable para sempre retornar
+			// Sobrescreve o método isCellEditable da classe DefaultTableModel para sempre
+			// retornar
 			// false, fazendo com que as células da tabela não possam ser editadas
 			@Override
 			public boolean isCellEditable(int rowIndex, int colIndex) {
@@ -107,12 +108,42 @@ public class FrameListaFuncionario {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				int resposta = JOptionPane.showConfirmDialog(tela, "Deseja excluir o funcionário cadastrado?",
-						"Exclusão de funcionário", JOptionPane.YES_NO_OPTION);
+				if (tableFuncionarios.isRowSelected(tableFuncionarios.getSelectedRow())) {
+					int resposta = JOptionPane.showConfirmDialog(tela, "Deseja excluir o funcionário cadastrado?",
+							"Exclusão de funcionário", JOptionPane.YES_NO_OPTION);
 
-				if (resposta == 0) {
-					int excluirLinha = tableFuncionarios.getSelectedRow();
-					System.out.println(excluirLinha);
+					if (resposta == 0) {
+						int excluirLinha = tableFuncionarios.getSelectedRow();
+
+						FuncionarioDAO dao = new FuncionarioDAO(null);
+						dao.apagar(excluirLinha);
+						atualizarTabela();
+
+					}
+				} else {
+					JOptionPane.showMessageDialog(tela, "Precisa selecionar alguma linha para excluir!", "Erro",
+							JOptionPane.INFORMATION_MESSAGE);
+				}
+
+			}
+		});
+
+		btnAlterar.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				if (tableFuncionarios.isRowSelected(tableFuncionarios.getSelectedRow())) {
+					int resposta = JOptionPane.showConfirmDialog(tela, "Deseja alterar o funcionário cadastrado?",
+							"Exclusão de funcionário", JOptionPane.YES_NO_OPTION);
+
+					if (resposta == 0) {
+						
+
+					}
+				} else {
+					JOptionPane.showMessageDialog(tela, "Precisa selecionar alguma linha para alterar!", "Erro",
+							JOptionPane.INFORMATION_MESSAGE);
 				}
 
 			}
