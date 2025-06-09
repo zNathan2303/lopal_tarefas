@@ -8,23 +8,10 @@ public class Tarefa {
 	private String titulo;
 	private String descricao;
 	private LocalDateTime dataInicial;
-	private LocalDateTime prazo;
+	private int prazo;
 	private LocalDateTime dataConclusao;
 	private Status status;
 	private Funcionario responsavel;
-
-	// CONSTRUTOR PADRÃO
-	public Tarefa() {
-
-	}
-
-	public Tarefa(String titulo, LocalDateTime dataInicial) {
-
-	}
-
-	public Tarefa(String titulo) {
-		this.titulo = titulo;
-	}
 
 	public String getTitulo() {
 		return titulo;
@@ -50,11 +37,11 @@ public class Tarefa {
 		this.dataInicial = dataInicial;
 	}
 
-	public LocalDateTime getPrazo() {
+	public int getPrazo() {
 		return prazo;
 	}
 
-	public void setPrazo(LocalDateTime prazo) {
+	public void setPrazo(int prazo) {
 		this.prazo = prazo;
 	}
 
