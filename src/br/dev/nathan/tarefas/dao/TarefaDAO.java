@@ -42,6 +42,7 @@ public class TarefaDAO {
 	public List<Tarefa> showTasks() {
 		
 		List<Tarefa> tarefas = new ArrayList<>();
+		FuncionarioDAO dao = new FuncionarioDAO(null);
 
 		try {
 			BufferedReader br = ff.getBufferedReaderTarefas();
@@ -56,7 +57,7 @@ public class TarefaDAO {
 				Tarefa t = new Tarefa();
 				t.setCodigo(tarefa[0]);
 				t.setTitulo(tarefa[1]);
-				t.setResponsavel(funcionario);
+				t.setResponsavel(dao.reconstruirFuncionario(funcionario, tarefa[2], tarefa[3], tarefa[4], tarefa[5]));
 
 				tarefas.add(t);
 

@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 import br.dev.nathan.tarefas.dao.FuncionarioDAO;
 import br.dev.nathan.tarefas.dao.TarefaDAO;
@@ -22,6 +23,7 @@ import br.dev.nathan.tarefas.model.Tarefa;
 public class FrameListaTarefa {
 
 	private JLabel labelTitulo;
+	private DefaultTableModel modeloLista;
 	private JTable tableTarefas;
 	private JScrollPane scrollTarefas;
 	private JButton btnNovo;
@@ -55,25 +57,20 @@ public class FrameListaTarefa {
 		btnAlterar = new JButton("Alterar");
 		btnSair = new JButton("Sair");
 
-		String[] colunas = new String[3];
-		colunas[0] = "Código";
-		colunas[1] = "Nome";
-		colunas[2] = "Responsável";
+		modeloLista = new DefaultTableModel();
 
-		TarefaDAO dao = new TarefaDAO(null, null);
-		List<Tarefa> tarefas = dao.showTasks();
-		Object[][] dados = new Object[tarefas.size()][3];
+		atualizarTabela();
 
-		int linha = 0;
-		for (Tarefa t : tarefas) {
-			dados[linha][0] = t.getCodigo();
-			dados[linha][1] = t.getTitulo();
-			Funcionario funcionario = t.getResponsavel();
-			dados[linha][2] = funcionario.getNome();
-			linha++;
-		}
+		tableTarefas = new JTable(modeloLista) {
+			@Override
+			public boolean isCellEditable(int rowIndex, int colIndex) {
+				return false;
+			}
+		};
 
-		tableTarefas = new JTable(dados, colunas);
+		tableTarefas.getTableHeader().setReorderingAllowed(false);
+		tableTarefas.setFocusable(false);
+
 		scrollTarefas = new JScrollPane(tableTarefas);
 
 		scrollTarefas.setBounds(20, 70, 550, 300);
@@ -93,7 +90,7 @@ public class FrameListaTarefa {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new FrameTarefa(tela);
+				new FrameTarefa(tela, FrameListaTarefa.this);
 
 			}
 		});
@@ -110,6 +107,28 @@ public class FrameListaTarefa {
 
 		tela.setVisible(true);
 
+	}
+
+	public void atualizarTabela() {
+		String[] colunas = new String[3];
+		colunas[0] = "Código";
+		colunas[1] = "Nome";
+		colunas[2] = "Responsável";
+
+		TarefaDAO dao = new TarefaDAO(null, null);
+		List<Tarefa> tarefas = dao.showTasks();
+		Object[][] dados = new Object[tarefas.size()][3];
+
+		int linha = 0;
+		for (Tarefa t : tarefas) {
+			dados[linha][0] = t.getCodigo();
+			dados[linha][1] = t.getTitulo();
+			Funcionario funcionario = t.getResponsavel();
+			dados[linha][2] = funcionario.getNome();
+			linha++;
+		}
+
+		modeloLista.setDataVector(dados, colunas);
 	}
 
 }

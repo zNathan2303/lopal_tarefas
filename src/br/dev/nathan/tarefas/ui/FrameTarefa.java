@@ -39,12 +39,15 @@ public class FrameTarefa {
 	private JComboBox<String> cboxResponsavel;
 	private JButton btnGravar;
 	private JButton btnSair;
+	
+	private FrameListaTarefa frameLista;
 
-	public FrameTarefa(JDialog telaLista) {
-		criarTela(telaLista);
+	public FrameTarefa(JDialog telaLista, FrameListaTarefa frameLista) {
+		this.frameLista = frameLista;
+		criarTela(telaLista, frameLista);
 	}
 
-	private void criarTela(JDialog telaLista) {
+	private void criarTela(JDialog telaLista, FrameListaTarefa frameLista) {
 		JDialog tela = new JDialog(telaLista, "Cadastro de tarefas", true);
 		tela.setLayout(null);
 		tela.setSize(400, 600);
@@ -94,11 +97,8 @@ public class FrameTarefa {
 		cboxResponsavel.setBounds(20, 440, 250, 30);
 		FuncionarioDAO fDao = new FuncionarioDAO(null);
 		List<Funcionario> funcionarios = fDao.showEmployees();
-
-		int linha = 0;
 		for (Funcionario f : funcionarios) {
 			cboxResponsavel.addItem(f.getNome());
-			linha++;
 		}
 
 		btnGravar = new JButton("Salvar");
@@ -138,8 +138,8 @@ public class FrameTarefa {
 				tarefa.setDataConclusao(null);
 				tarefa.setStatus((Status) cboxStatus.getSelectedItem());
 				// Estrutura responsável por passar o funcionário selecionado na JComboBox
-				int linha = 0;
 				String nome;
+				List<Funcionario> funcionarios = fDao.showEmployees();
 				for (Funcionario funcionario : funcionarios) {
 					nome = funcionario.getNome();
 					if (cboxResponsavel.getSelectedItem() == nome) {
@@ -147,12 +147,13 @@ public class FrameTarefa {
 						TarefaDAO dao = new TarefaDAO(tarefa, funcionario);
 						dao.gravar();
 					}
-					linha++;
 				}
 				
 //				tarefa.setDataInicial(txtDataInicial.getText());
 //				tarefa.setPrazo(txtPrazo.getText());
 //				tarefa.setDataConclusao(txtDataConclusao.getText());
+				
+				frameLista.atualizarTabela();
 				
 				JOptionPane.showMessageDialog(tela, "Gravado com sucesso!", "Sucesso",
 						JOptionPane.INFORMATION_MESSAGE);

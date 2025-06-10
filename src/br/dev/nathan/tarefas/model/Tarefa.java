@@ -80,7 +80,7 @@ public class Tarefa {
 	@Override
 	public String toString() {
 		return this.codigo + "," + this.titulo + "," + this.descricao + "," + this.dataInicial + "," + this.prazo + ","
-				+ this.dataConclusao + "," + this.status + "," + this.responsavel + "\n";
+				+ this.dataConclusao + "," + this.status + "," + this.responsavel;
 	}
 
 }
