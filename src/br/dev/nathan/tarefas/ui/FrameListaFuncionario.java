@@ -152,12 +152,8 @@ public class FrameListaFuncionario {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int resposta = JOptionPane.showConfirmDialog(tela, "Confirma a saída do sistema?", "Sair do sistema",
-						JOptionPane.YES_NO_OPTION);
 
-				if (resposta == 0) {
-					tela.dispose();
-				}
+				tela.dispose();
 
 			}
 		});

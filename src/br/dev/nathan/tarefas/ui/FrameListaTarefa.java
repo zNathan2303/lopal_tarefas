@@ -54,7 +54,7 @@ public class FrameListaTarefa {
 		btnExcluir = new JButton("Excluir");
 		btnAlterar = new JButton("Alterar");
 		btnSair = new JButton("Sair");
-		
+
 		String[] colunas = new String[3];
 		colunas[0] = "Código";
 		colunas[1] = "Nome";
@@ -68,7 +68,8 @@ public class FrameListaTarefa {
 		for (Tarefa t : tarefas) {
 			dados[linha][0] = t.getCodigo();
 			dados[linha][1] = t.getTitulo();
-			dados[linha][2] = t.getResponsavel();
+			Funcionario funcionario = t.getResponsavel();
+			dados[linha][2] = funcionario.getNome();
 			linha++;
 		}
 
@@ -101,12 +102,8 @@ public class FrameListaTarefa {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int resposta = JOptionPane.showConfirmDialog(tela, "Confirma a saída do sistema?", "Sair do sistema",
-						JOptionPane.YES_NO_OPTION);
 
-				if (resposta == 0) {
-					tela.dispose();
-				}
+				tela.dispose();
 
 			}
 		});

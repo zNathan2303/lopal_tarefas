@@ -137,14 +137,22 @@ public class FrameTarefa {
 				tarefa.setPrazo(1);
 				tarefa.setDataConclusao(null);
 				tarefa.setStatus((Status) cboxStatus.getSelectedItem());
-				tarefa.setResponsavel((Funcionario) cboxResponsavel.getSelectedItem());
+				// Estrutura responsável por passar o funcionário selecionado na JComboBox
+				int linha = 0;
+				String nome;
+				for (Funcionario funcionario : funcionarios) {
+					nome = funcionario.getNome();
+					if (cboxResponsavel.getSelectedItem() == nome) {
+						tarefa.setResponsavel(funcionario);
+						TarefaDAO dao = new TarefaDAO(tarefa, funcionario);
+						dao.gravar();
+					}
+					linha++;
+				}
 				
 //				tarefa.setDataInicial(txtDataInicial.getText());
 //				tarefa.setPrazo(txtPrazo.getText());
 //				tarefa.setDataConclusao(txtDataConclusao.getText());
-				
-				TarefaDAO dao = new TarefaDAO(tarefa, (Funcionario) cboxResponsavel.getSelectedItem());
-				dao.gravar();
 				
 				JOptionPane.showMessageDialog(tela, "Gravado com sucesso!", "Sucesso",
 						JOptionPane.INFORMATION_MESSAGE);
