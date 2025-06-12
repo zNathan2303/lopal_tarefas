@@ -139,10 +139,12 @@ public class FrameTarefa {
 				tarefa.setStatus((Status) cboxStatus.getSelectedItem());
 				// Estrutura responsável por passar o funcionário selecionado na JComboBox
 				String nome;
+				String nomeSelecionado;
 				List<Funcionario> funcionarios = fDao.showEmployees();
 				for (Funcionario funcionario : funcionarios) {
 					nome = funcionario.getNome();
-					if (cboxResponsavel.getSelectedItem() == nome) {
+					nomeSelecionado = String.valueOf(cboxResponsavel.getSelectedItem());
+					if (nomeSelecionado.equals(nome)) {
 						tarefa.setResponsavel(funcionario);
 						TarefaDAO dao = new TarefaDAO(tarefa, funcionario);
 						dao.gravar();
@@ -172,7 +174,6 @@ public class FrameTarefa {
 				if (resposta == 0) {
 					tela.dispose();
 				}
-
 			}
 		});
 

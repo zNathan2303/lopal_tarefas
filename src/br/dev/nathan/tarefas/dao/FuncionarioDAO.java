@@ -21,16 +21,15 @@ public class FuncionarioDAO {
 
 	}
 	
-	public Funcionario reconstruirFuncionario(Funcionario funcionario, String codigo, String nome, String telefone, String email) {
+	public Funcionario reconstruirFuncionario(String codigo, String nome, String telefone, String email) {
 		
-		this.funcionario = funcionario;
+		funcionario = new Funcionario();
 		
-		this.funcionario.setCodigo(codigo);
-		this.funcionario.setNome(nome);
-		this.funcionario.setTelefone(telefone);
+		funcionario.setCodigo(codigo);
+		funcionario.setNome(nome);
+		funcionario.setTelefone(telefone);
 		funcionario.setEmail(email);
-		
-		return this.funcionario;
+		return funcionario;
 	}
 
 	// Método responsável por gravar funcionários no sistema

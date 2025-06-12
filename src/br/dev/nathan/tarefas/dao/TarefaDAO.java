@@ -57,7 +57,7 @@ public class TarefaDAO {
 				Tarefa t = new Tarefa();
 				t.setCodigo(tarefa[0]);
 				t.setTitulo(tarefa[1]);
-				t.setResponsavel(dao.reconstruirFuncionario(funcionario, tarefa[2], tarefa[3], tarefa[4], tarefa[5]));
+				t.setResponsavel(dao.reconstruirFuncionario(tarefa[7], tarefa[8], tarefa[9], tarefa[10]));
 
 				tarefas.add(t);
 
