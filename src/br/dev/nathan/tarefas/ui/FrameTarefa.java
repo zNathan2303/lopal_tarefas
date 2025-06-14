@@ -3,15 +3,11 @@ package br.dev.nathan.tarefas.ui;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -25,8 +21,6 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.MaskFormatter;
-
-import org.w3c.dom.events.EventTarget;
 
 import br.dev.nathan.tarefas.dao.FuncionarioDAO;
 import br.dev.nathan.tarefas.dao.TarefaDAO;
@@ -199,16 +193,29 @@ public class FrameTarefa {
 						|| txtDataInicial.getText() == "__/__/____") {
 					JOptionPane.showMessageDialog(tela, "Nenhum campo pode estar vazio!", "Erro",
 							JOptionPane.ERROR_MESSAGE);
-					System.out.println(txtDataConclusao.getText());
-					System.out.println(txtDataInicial.getText());
+
 				} else {
 					Tarefa tarefa = new Tarefa();
 					tarefa.setCodigo(Utils.gerarUUID());
 					tarefa.setTitulo(txtTitulo.getText());
 					tarefa.setDescricao(txtDescricao.getText());
-					tarefa.setDataInicial(null);
+
+					String[] dadosDataInicio = txtDataInicial.getText().split("/");
+					LocalDate dataInicio = LocalDate.now();
+					dataInicio = dataInicio.withYear(Integer.valueOf(dadosDataInicio[2]))
+							.withMonth(Integer.valueOf(dadosDataInicio[1]))
+							.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
+					tarefa.setDataInicial(dataInicio);
+
 					tarefa.setPrazo(Integer.valueOf(txtPrazo.getText()));
-					tarefa.setDataConclusao(null);
+
+					String[] dadosDataConclusao = txtDataConclusao.getText().split("/");
+					LocalDate dataConclusao = LocalDate.now();
+					dataConclusao = dataConclusao.withYear(Integer.valueOf(dadosDataConclusao[2]))
+							.withMonth(Integer.valueOf(dadosDataConclusao[1]))
+							.withDayOfMonth(Integer.valueOf(dadosDataConclusao[0]));
+					tarefa.setDataConclusao(dataConclusao);
+
 					tarefa.setStatus((Status) cboxStatus.getSelectedItem());
 					// Estrutura responsável por passar o funcionário selecionado na JComboBox
 					String nome;
