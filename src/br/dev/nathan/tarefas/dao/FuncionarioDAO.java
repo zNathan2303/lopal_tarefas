@@ -14,13 +14,12 @@ public class FuncionarioDAO {
 	private Funcionario funcionario;
 	private FileFactory ff = new FileFactory();
 
-	// Método construtor
 	public FuncionarioDAO(Funcionario funcionario) {
 
 		this.funcionario = funcionario;
 
 	}
-	
+
 	public Funcionario reconstruirFuncionario(String codigo, String nome, String telefone, String email) {
 		
 		funcionario = new Funcionario();

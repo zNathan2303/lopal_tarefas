@@ -3,25 +3,19 @@ package br.dev.nathan.tarefas.dao;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import br.dev.nathan.tarefas.factory.FileFactory;
-import br.dev.nathan.tarefas.model.Funcionario;
-import br.dev.nathan.tarefas.model.Status;
 import br.dev.nathan.tarefas.model.Tarefa;
 
 public class TarefaDAO {
 
 	private Tarefa tarefa;
-	private Funcionario funcionario;
 	private FileFactory ff = new FileFactory();
 
-	public TarefaDAO(Tarefa tarefa, Funcionario funcionario) {
+	public TarefaDAO(Tarefa tarefa) {
 		this.tarefa = tarefa;
-		this.funcionario = funcionario;
 	}
 
 	public void gravar() {
@@ -37,6 +31,42 @@ public class TarefaDAO {
 			System.out.println(e.getMessage());
 		}
 		
+	}
+	
+	public void apagar(int linhaASerApagada) {
+		try {
+
+			BufferedReader br = ff.getBufferedReaderTarefas();
+			BufferedWriter bw = ff.getBufferedWriterTarefas();
+
+			List<String> linhas = new ArrayList<>();
+			String linha;
+			int linhaIndex = 0;
+			linhaASerApagada += 1;
+
+			while ((linha = br.readLine()) != null) {
+				if (linhaIndex != linhaASerApagada) {
+					linhas.add(linha);
+				}
+				linhaIndex++;
+			}
+
+			ff.resetArquivoTarefas();
+
+			for (String l : linhas) {
+				
+				bw.write(l);
+				bw.flush();
+				
+				bw.newLine();
+			}
+
+			bw.write("");
+			bw.flush();
+
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 	
 	public List<Tarefa> showTasks() {

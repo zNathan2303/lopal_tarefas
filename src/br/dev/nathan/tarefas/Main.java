@@ -6,16 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import br.dev.nathan.tarefas.dao.FuncionarioDAO;
-import br.dev.nathan.tarefas.model.Funcionario;
-import br.dev.nathan.tarefas.model.Tarefa;
-import br.dev.nathan.tarefas.ui.FrameFuncionario;
-import br.dev.nathan.tarefas.ui.FrameListaFuncionario;
 import br.dev.nathan.tarefas.ui.FrameOpcoes;
-import br.dev.nathan.tarefas.utils.Utils;
 
 public class Main {
 

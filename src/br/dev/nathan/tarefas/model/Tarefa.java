@@ -1,15 +1,15 @@
 package br.dev.nathan.tarefas.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class Tarefa {
 
 	private String codigo;
 	private String titulo;
 	private String descricao;
-	private LocalDateTime dataInicial;
+	private LocalDate dataInicial;
 	private int prazo;
-	private LocalDateTime dataConclusao;
+	private LocalDate dataConclusao;
 	private Status status;
 	private Funcionario responsavel;
 
@@ -29,11 +29,11 @@ public class Tarefa {
 		this.descricao = descricao;
 	}
 
-	public LocalDateTime getDataInicial() {
+	public LocalDate getDataInicial() {
 		return dataInicial;
 	}
 
-	public void setDataInicial(LocalDateTime dataInicial) {
+	public void setDataInicial(LocalDate dataInicial) {
 		this.dataInicial = dataInicial;
 	}
 
@@ -69,11 +69,11 @@ public class Tarefa {
 		this.codigo = codigo;
 	}
 
-	public void setDataConclusao(LocalDateTime dataConclusao) {
+	public void setDataConclusao(LocalDate dataConclusao) {
 		this.dataConclusao = dataConclusao;
 	}
 
-	public LocalDateTime getDataConclusao() {
+	public LocalDate getDataConclusao() {
 		return dataConclusao;
 	}
 

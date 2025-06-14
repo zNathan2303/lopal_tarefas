@@ -3,22 +3,37 @@ package br.dev.nathan.tarefas.ui;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.MaskFormatter;
+
+import org.w3c.dom.events.EventTarget;
 
 import br.dev.nathan.tarefas.dao.FuncionarioDAO;
 import br.dev.nathan.tarefas.dao.TarefaDAO;
 import br.dev.nathan.tarefas.model.Funcionario;
 import br.dev.nathan.tarefas.model.Status;
 import br.dev.nathan.tarefas.model.Tarefa;
+import br.dev.nathan.tarefas.utils.LimitadorTextField;
 import br.dev.nathan.tarefas.utils.Utils;
 
 public class FrameTarefa {
@@ -28,18 +43,18 @@ public class FrameTarefa {
 	private JLabel labelDescricao;
 	private JTextField txtDescricao;
 	private JLabel labelDataInicial;
-	private JTextField txtDataInicial;
+	private JFormattedTextField txtDataInicial;
 	private JLabel labelPrazo;
 	private JTextField txtPrazo;
 	private JLabel labelDataConclusao;
-	private JTextField txtDataConclusao;
+	private JFormattedTextField txtDataConclusao;
 	private JLabel labelStatus;
 	private JComboBox<Status> cboxStatus;
 	private JLabel labelResponsavel;
 	private JComboBox<String> cboxResponsavel;
 	private JButton btnGravar;
 	private JButton btnSair;
-	
+
 	private FrameListaTarefa frameLista;
 
 	public FrameTarefa(JDialog telaLista, FrameListaTarefa frameLista) {
@@ -57,6 +72,7 @@ public class FrameTarefa {
 		tela.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		Container painel = tela.getContentPane();
+		DateTimeFormatter formatoData = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 		labelTitulo = new JLabel("Título:");
 		labelTitulo.setBounds(20, 20, 200, 30);
@@ -70,18 +86,49 @@ public class FrameTarefa {
 
 		labelDataInicial = new JLabel("Data inicial:");
 		labelDataInicial.setBounds(20, 150, 200, 30);
-		txtDataInicial = new JTextField();
-		txtDataInicial.setBounds(20, 180, 150, 30);
 
-		labelPrazo = new JLabel("Prazo:");
+		// A class MaskFormatter exige que tenha alguma forma de lidar com o
+		// ParseException, então é declarado a classe fora do try/catch para poder
+		// usá-la fora dele depois
+		MaskFormatter mascaraData = null;
+		try {
+			mascaraData = new MaskFormatter("##/##/####");
+			mascaraData.setPlaceholderCharacter('_');
+
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+		}
+		txtDataInicial = new JFormattedTextField(mascaraData);
+		txtDataInicial.setDocument(new LimitadorTextField(10));
+		LocalDate dataAtual = LocalDate.now();
+		LocalDate dataInicio = dataAtual;
+		txtDataInicial.setText(dataInicio.format(formatoData));
+
+		txtDataInicial.setHorizontalAlignment(JTextField.CENTER);
+		txtDataInicial.setBounds(20, 180, 100, 30);
+
+		labelPrazo = new JLabel("Prazo (dias):");
 		labelPrazo.setBounds(20, 215, 200, 30);
 		txtPrazo = new JTextField();
+		txtPrazo.setDocument(new LimitadorTextField(3));
+		txtPrazo.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String numeros = "1234567890";
+				if (!numeros.contains(e.getKeyChar() + "")) {
+					e.consume();
+				}
+			}
+		});
 		txtPrazo.setBounds(20, 245, 150, 30);
 
 		labelDataConclusao = new JLabel("Data conclusão:");
 		labelDataConclusao.setBounds(20, 280, 200, 30);
-		txtDataConclusao = new JTextField();
-		txtDataConclusao.setBounds(20, 310, 150, 30);
+		txtDataConclusao = new JFormattedTextField(mascaraData);
+		txtDataConclusao.setEnabled(false);
+		txtDataConclusao.setHorizontalAlignment(JTextField.CENTER);
+		txtDataConclusao.setBounds(20, 310, 100, 30);
 
 		labelStatus = new JLabel("Status:");
 		labelStatus.setBounds(20, 345, 200, 30);
@@ -124,42 +171,65 @@ public class FrameTarefa {
 		painel.add(btnGravar);
 		painel.add(btnSair);
 
+		txtPrazo.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				atualizarDataConclusao(dataInicio, formatoData);
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				atualizarDataConclusao(dataInicio, formatoData);
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
 		btnGravar.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				Tarefa tarefa = new Tarefa();
-				tarefa.setCodigo(Utils.gerarUUID());
-				tarefa.setTitulo(txtTitulo.getText());
-				tarefa.setDescricao(txtDescricao.getText());
-				tarefa.setDataInicial(null);
-				tarefa.setPrazo(1);
-				tarefa.setDataConclusao(null);
-				tarefa.setStatus((Status) cboxStatus.getSelectedItem());
-				// Estrutura responsável por passar o funcionário selecionado na JComboBox
-				String nome;
-				String nomeSelecionado;
-				List<Funcionario> funcionarios = fDao.showEmployees();
-				for (Funcionario funcionario : funcionarios) {
-					nome = funcionario.getNome();
-					nomeSelecionado = String.valueOf(cboxResponsavel.getSelectedItem());
-					if (nomeSelecionado.equals(nome)) {
-						tarefa.setResponsavel(funcionario);
-						TarefaDAO dao = new TarefaDAO(tarefa, funcionario);
-						dao.gravar();
+				if (txtTitulo.getText().isEmpty() || txtDescricao.getText().isEmpty() || txtPrazo.getText().isEmpty()
+						|| txtDataInicial.getText() == "__/__/____") {
+					JOptionPane.showMessageDialog(tela, "Nenhum campo pode estar vazio!", "Erro",
+							JOptionPane.ERROR_MESSAGE);
+					System.out.println(txtDataConclusao.getText());
+					System.out.println(txtDataInicial.getText());
+				} else {
+					Tarefa tarefa = new Tarefa();
+					tarefa.setCodigo(Utils.gerarUUID());
+					tarefa.setTitulo(txtTitulo.getText());
+					tarefa.setDescricao(txtDescricao.getText());
+					tarefa.setDataInicial(null);
+					tarefa.setPrazo(Integer.valueOf(txtPrazo.getText()));
+					tarefa.setDataConclusao(null);
+					tarefa.setStatus((Status) cboxStatus.getSelectedItem());
+					// Estrutura responsável por passar o funcionário selecionado na JComboBox
+					String nome;
+					String nomeSelecionado;
+					List<Funcionario> funcionarios = fDao.showEmployees();
+					for (Funcionario funcionario : funcionarios) {
+						nome = funcionario.getNome();
+						nomeSelecionado = String.valueOf(cboxResponsavel.getSelectedItem());
+						if (nomeSelecionado.equals(nome)) {
+							tarefa.setResponsavel(funcionario);
+							TarefaDAO dao = new TarefaDAO(tarefa);
+							dao.gravar();
+						}
 					}
+
+					frameLista.atualizarTabela();
+
+					JOptionPane.showMessageDialog(tela, "Gravado com sucesso!", "Sucesso",
+							JOptionPane.INFORMATION_MESSAGE);
+					limparFormulario();
 				}
-				
-//				tarefa.setDataInicial(txtDataInicial.getText());
-//				tarefa.setPrazo(txtPrazo.getText());
-//				tarefa.setDataConclusao(txtDataConclusao.getText());
-				
-				frameLista.atualizarTabela();
-				
-				JOptionPane.showMessageDialog(tela, "Gravado com sucesso!", "Sucesso",
-						JOptionPane.INFORMATION_MESSAGE);
-				limparFormulario();
 
 			}
 		});
@@ -173,6 +243,7 @@ public class FrameTarefa {
 
 				if (resposta == 0) {
 					tela.dispose();
+					System.out.println(txtDataInicial.getText());
 				}
 			}
 		});
@@ -180,7 +251,7 @@ public class FrameTarefa {
 		tela.setVisible(true);
 
 	}
-	
+
 	private void limparFormulario() {
 		txtTitulo.setText(null);
 		txtDescricao.setText(null);
@@ -189,6 +260,13 @@ public class FrameTarefa {
 		txtDataConclusao.setText(null);
 		cboxStatus.setSelectedItem(null);
 		cboxResponsavel.setSelectedItem(null);
+	}
+
+	private void atualizarDataConclusao(LocalDate dataInicio, DateTimeFormatter formatoData) {
+		if (!txtPrazo.getText().isEmpty()) {
+			long prazo = Integer.parseInt(txtPrazo.getText());
+			txtDataConclusao.setText(dataInicio.plusDays(prazo).format(formatoData));
+		}
 	}
 
 }
