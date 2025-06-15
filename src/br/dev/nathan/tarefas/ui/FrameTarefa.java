@@ -135,6 +135,10 @@ public class FrameTarefa {
 							.withMonth(Integer.valueOf(dadosDataInicio[1]))
 							.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
 					atualizarDataConclusao(dataInicio, formatoData);
+					if (dataInicio.isBefore(LocalDate.now())) {
+						JOptionPane.showMessageDialog(tela, "A data de inicio da tarefa não pode ser no passado!",
+								"Aviso", JOptionPane.WARNING_MESSAGE);
+					}
 				} catch (Exception e2) {
 					JOptionPane.showMessageDialog(tela, "A data de inicio da tarefa é inválida!", "Aviso",
 							JOptionPane.WARNING_MESSAGE);
@@ -251,48 +255,49 @@ public class FrameTarefa {
 						dataInicio = dataInicio.withYear(Integer.valueOf(dadosDataInicio[2]))
 								.withMonth(Integer.valueOf(dadosDataInicio[1]))
 								.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
-						tarefa.setDataInicial(dataInicio);
 
-						if (dataInicio.isAfter(LocalDate.now()))
-							;
+						if (dataInicio.isAfter(LocalDate.now())) {
+							tarefa.setDataInicial(dataInicio);
+							tarefa.setPrazo(Integer.valueOf(txtPrazo.getText()));
 
-						tarefa.setPrazo(Integer.valueOf(txtPrazo.getText()));
+							// Também desmembra o conteúdo do JTextField só que da data de conclusão, para
+							// passá-lo como LocalDate para a tarefa
+							String[] dadosDataConclusao = txtDataConclusao.getText().split("/");
+							LocalDate dataConclusao = LocalDate.now();
+							dataConclusao = dataConclusao.withYear(Integer.valueOf(dadosDataConclusao[2]))
+									.withMonth(Integer.valueOf(dadosDataConclusao[1]))
+									.withDayOfMonth(Integer.valueOf(dadosDataConclusao[0]));
+							tarefa.setDataConclusao(dataConclusao);
 
-						// Também desmembra o conteúdo do JTextField só que da data de conclusão, para
-						// passá-lo como LocalDate para a tarefa
-						String[] dadosDataConclusao = txtDataConclusao.getText().split("/");
-						LocalDate dataConclusao = LocalDate.now();
-						dataConclusao = dataConclusao.withYear(Integer.valueOf(dadosDataConclusao[2]))
-								.withMonth(Integer.valueOf(dadosDataConclusao[1]))
-								.withDayOfMonth(Integer.valueOf(dadosDataConclusao[0]));
-						tarefa.setDataConclusao(dataConclusao);
+							tarefa.setStatus((Status) cboxStatus.getSelectedItem());
 
-						tarefa.setStatus((Status) cboxStatus.getSelectedItem());
-
-						// Estrutura responsável por passar o funcionário selecionado na JComboBox
-						String nome;
-						String nomeSelecionado;
-						List<Funcionario> funcionarios = fDao.showEmployees();
-						for (Funcionario funcionario : funcionarios) {
-							nome = funcionario.getNome();
-							nomeSelecionado = String.valueOf(cboxResponsavel.getSelectedItem());
-							if (nomeSelecionado.equals(nome)) {
-								tarefa.setResponsavel(funcionario);
-								TarefaDAO dao = new TarefaDAO(tarefa);
-								dao.gravar();
+							// Estrutura responsável por passar o funcionário selecionado na JComboBox
+							String nome;
+							String nomeSelecionado;
+							List<Funcionario> funcionarios = fDao.showEmployees();
+							for (Funcionario funcionario : funcionarios) {
+								nome = funcionario.getNome();
+								nomeSelecionado = String.valueOf(cboxResponsavel.getSelectedItem());
+								if (nomeSelecionado.equals(nome)) {
+									tarefa.setResponsavel(funcionario);
+									TarefaDAO dao = new TarefaDAO(tarefa);
+									dao.gravar();
+								}
 							}
+
+							frameLista.atualizarTabela();
+
+							JOptionPane.showMessageDialog(tela, "Gravado com sucesso!", "Sucesso",
+									JOptionPane.INFORMATION_MESSAGE);
+							limparFormulario();
+						} else {
+							JOptionPane.showMessageDialog(tela, "A data de inicio está no passado!", "Erro",
+									JOptionPane.ERROR_MESSAGE);
 						}
-
-						frameLista.atualizarTabela();
-
-						JOptionPane.showMessageDialog(tela, "Gravado com sucesso!", "Sucesso",
-								JOptionPane.INFORMATION_MESSAGE);
-						limparFormulario();
 
 					} catch (Exception e2) {
 						JOptionPane.showMessageDialog(tela, "A data de inicio é inválida!", "Erro",
 								JOptionPane.ERROR_MESSAGE);
-						System.out.println(e2.getMessage());
 					}
 
 				}
