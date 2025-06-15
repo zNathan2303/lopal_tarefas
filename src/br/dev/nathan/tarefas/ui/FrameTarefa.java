@@ -3,6 +3,8 @@ package br.dev.nathan.tarefas.ui;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.ParseException;
@@ -27,7 +29,7 @@ import br.dev.nathan.tarefas.dao.TarefaDAO;
 import br.dev.nathan.tarefas.model.Funcionario;
 import br.dev.nathan.tarefas.model.Status;
 import br.dev.nathan.tarefas.model.Tarefa;
-import br.dev.nathan.tarefas.utils.LimitadorTextField;
+import br.dev.nathan.tarefas.utils.LimitaCaracteres;
 import br.dev.nathan.tarefas.utils.Utils;
 
 public class FrameTarefa {
@@ -66,24 +68,29 @@ public class FrameTarefa {
 		tela.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		Container painel = tela.getContentPane();
+		// Define o estilo de formato de data, que no caso será dia/mês/ano.
 		DateTimeFormatter formatoData = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 		labelTitulo = new JLabel("Título:");
 		labelTitulo.setBounds(20, 20, 200, 30);
 		txtTitulo = new JTextField();
 		txtTitulo.setBounds(20, 50, 200, 30);
+		bloquearVirgula(txtTitulo);
 
 		labelDescricao = new JLabel("Descrição:");
 		labelDescricao.setBounds(20, 85, 200, 30);
 		txtDescricao = new JTextField();
 		txtDescricao.setBounds(20, 115, 350, 30);
+		bloquearVirgula(txtDescricao);
 
 		labelDataInicial = new JLabel("Data inicial:");
 		labelDataInicial.setBounds(20, 150, 200, 30);
 
 		// A class MaskFormatter exige que tenha alguma forma de lidar com o
 		// ParseException, então é declarado a classe fora do try/catch para poder
-		// usá-la fora dele depois
+		// usá-la fora dele depois.
+		// No JTextField não há como definir uma mascara, então precisa substitui-lo
+		// por um JFormattedTextField.
 		MaskFormatter mascaraData = null;
 		try {
 			mascaraData = new MaskFormatter("##/##/####");
@@ -92,21 +99,55 @@ public class FrameTarefa {
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());
 		}
+
 		txtDataInicial = new JFormattedTextField(mascaraData);
-		txtDataInicial.setDocument(new LimitadorTextField(10));
+		txtDataInicial.setDocument(new LimitaCaracteres(10));
 		LocalDate dataAtual = LocalDate.now();
 		LocalDate dataInicio = dataAtual;
 		txtDataInicial.setText(dataInicio.format(formatoData));
-
 		txtDataInicial.setHorizontalAlignment(JTextField.CENTER);
 		txtDataInicial.setBounds(20, 180, 100, 30);
+		// Estrutura responsável por permitir apenas números no campo
+		txtDataInicial.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String numeros = "1234567890";
+				// Verifica se a tecla digitada é alguma entre os números dentro do String, e se
+				// não for o evento de digitar é consumido e consequentemente encerrado, não
+				// escrevendo no campo o que o usuário digitou
+				if (!numeros.contains(e.getKeyChar() + "")) {
+					e.consume();
+				}
+
+			}
+		});
+		txtDataInicial.addFocusListener(new FocusAdapter() {
+
+			// Tenta converter a data que o usuário digitou em um LocalDate válido, e caso
+			// não consiga avisa para o usuário que está com erro
+			@Override
+			public void focusLost(FocusEvent e) {
+				try {
+					String[] dadosDataInicio = txtDataInicial.getText().split("/");
+					LocalDate dataInicio = LocalDate.now();
+					dataInicio = dataInicio.withYear(Integer.valueOf(dadosDataInicio[2]))
+							.withMonth(Integer.valueOf(dadosDataInicio[1]))
+							.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
+					atualizarDataConclusao(dataInicio, formatoData);
+				} catch (Exception e2) {
+					JOptionPane.showMessageDialog(tela, "A data de inicio da tarefa é inválida!", "Aviso",
+							JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		});
 
 		labelPrazo = new JLabel("Prazo (dias):");
 		labelPrazo.setBounds(20, 215, 200, 30);
 		txtPrazo = new JTextField();
-		txtPrazo.setDocument(new LimitadorTextField(3));
+		txtPrazo.setDocument(new LimitaCaracteres(3));
+		txtPrazo.setBounds(20, 245, 150, 30);
 		txtPrazo.addKeyListener(new KeyAdapter() {
-
 			@Override
 			public void keyTyped(KeyEvent e) {
 				String numeros = "1234567890";
@@ -115,7 +156,6 @@ public class FrameTarefa {
 				}
 			}
 		});
-		txtPrazo.setBounds(20, 245, 150, 30);
 
 		labelDataConclusao = new JLabel("Data conclusão:");
 		labelDataConclusao.setBounds(20, 280, 200, 30);
@@ -165,6 +205,8 @@ public class FrameTarefa {
 		painel.add(btnGravar);
 		painel.add(btnSair);
 
+		// Estrutura responsável por cada alteração que o usuário fizer no prazo, já
+		// alterar a data de conclusão automáticamente
 		txtPrazo.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
@@ -189,53 +231,70 @@ public class FrameTarefa {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				if (txtTitulo.getText().isEmpty() || txtDescricao.getText().isEmpty() || txtPrazo.getText().isEmpty()
-						|| txtDataInicial.getText() == "__/__/____") {
+				if (txtTitulo.getText().isEmpty() || txtDescricao.getText().isEmpty() || txtPrazo.getText().isEmpty()) {
 					JOptionPane.showMessageDialog(tela, "Nenhum campo pode estar vazio!", "Erro",
 							JOptionPane.ERROR_MESSAGE);
 
 				} else {
-					Tarefa tarefa = new Tarefa();
-					tarefa.setCodigo(Utils.gerarUUID());
-					tarefa.setTitulo(txtTitulo.getText());
-					tarefa.setDescricao(txtDescricao.getText());
 
-					String[] dadosDataInicio = txtDataInicial.getText().split("/");
-					LocalDate dataInicio = LocalDate.now();
-					dataInicio = dataInicio.withYear(Integer.valueOf(dadosDataInicio[2]))
-							.withMonth(Integer.valueOf(dadosDataInicio[1]))
-							.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
-					tarefa.setDataInicial(dataInicio);
+					try {
+						Tarefa tarefa = new Tarefa();
+						tarefa.setCodigo(Utils.gerarUUID());
+						tarefa.setTitulo(txtTitulo.getText());
+						tarefa.setDescricao(txtDescricao.getText());
 
-					tarefa.setPrazo(Integer.valueOf(txtPrazo.getText()));
+						// Parte do código que desmembra o conteúdo do JTextField de data de inicio da
+						// tarefa para transferir ele como dados de ano, mês e dia, para que possa
+						// passar para a tarefa um LocalDate
+						String[] dadosDataInicio = txtDataInicial.getText().split("/");
+						LocalDate dataInicio = LocalDate.now();
+						dataInicio = dataInicio.withYear(Integer.valueOf(dadosDataInicio[2]))
+								.withMonth(Integer.valueOf(dadosDataInicio[1]))
+								.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
+						tarefa.setDataInicial(dataInicio);
 
-					String[] dadosDataConclusao = txtDataConclusao.getText().split("/");
-					LocalDate dataConclusao = LocalDate.now();
-					dataConclusao = dataConclusao.withYear(Integer.valueOf(dadosDataConclusao[2]))
-							.withMonth(Integer.valueOf(dadosDataConclusao[1]))
-							.withDayOfMonth(Integer.valueOf(dadosDataConclusao[0]));
-					tarefa.setDataConclusao(dataConclusao);
+						if (dataInicio.isAfter(LocalDate.now()))
+							;
 
-					tarefa.setStatus((Status) cboxStatus.getSelectedItem());
-					// Estrutura responsável por passar o funcionário selecionado na JComboBox
-					String nome;
-					String nomeSelecionado;
-					List<Funcionario> funcionarios = fDao.showEmployees();
-					for (Funcionario funcionario : funcionarios) {
-						nome = funcionario.getNome();
-						nomeSelecionado = String.valueOf(cboxResponsavel.getSelectedItem());
-						if (nomeSelecionado.equals(nome)) {
-							tarefa.setResponsavel(funcionario);
-							TarefaDAO dao = new TarefaDAO(tarefa);
-							dao.gravar();
+						tarefa.setPrazo(Integer.valueOf(txtPrazo.getText()));
+
+						// Também desmembra o conteúdo do JTextField só que da data de conclusão, para
+						// passá-lo como LocalDate para a tarefa
+						String[] dadosDataConclusao = txtDataConclusao.getText().split("/");
+						LocalDate dataConclusao = LocalDate.now();
+						dataConclusao = dataConclusao.withYear(Integer.valueOf(dadosDataConclusao[2]))
+								.withMonth(Integer.valueOf(dadosDataConclusao[1]))
+								.withDayOfMonth(Integer.valueOf(dadosDataConclusao[0]));
+						tarefa.setDataConclusao(dataConclusao);
+
+						tarefa.setStatus((Status) cboxStatus.getSelectedItem());
+
+						// Estrutura responsável por passar o funcionário selecionado na JComboBox
+						String nome;
+						String nomeSelecionado;
+						List<Funcionario> funcionarios = fDao.showEmployees();
+						for (Funcionario funcionario : funcionarios) {
+							nome = funcionario.getNome();
+							nomeSelecionado = String.valueOf(cboxResponsavel.getSelectedItem());
+							if (nomeSelecionado.equals(nome)) {
+								tarefa.setResponsavel(funcionario);
+								TarefaDAO dao = new TarefaDAO(tarefa);
+								dao.gravar();
+							}
 						}
+
+						frameLista.atualizarTabela();
+
+						JOptionPane.showMessageDialog(tela, "Gravado com sucesso!", "Sucesso",
+								JOptionPane.INFORMATION_MESSAGE);
+						limparFormulario();
+
+					} catch (Exception e2) {
+						JOptionPane.showMessageDialog(tela, "A data de inicio é inválida!", "Erro",
+								JOptionPane.ERROR_MESSAGE);
+						System.out.println(e2.getMessage());
 					}
 
-					frameLista.atualizarTabela();
-
-					JOptionPane.showMessageDialog(tela, "Gravado com sucesso!", "Sucesso",
-							JOptionPane.INFORMATION_MESSAGE);
-					limparFormulario();
 				}
 
 			}
@@ -245,8 +304,8 @@ public class FrameTarefa {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int resposta = JOptionPane.showConfirmDialog(tela, "Confirma a saída do sistema?", "Sair do sistema",
-						JOptionPane.YES_NO_OPTION);
+				int resposta = JOptionPane.showConfirmDialog(tela, "Confirma a saída do cadastro da tarefa?",
+						"Sair do sistema", JOptionPane.YES_NO_OPTION);
 
 				if (resposta == 0) {
 					tela.dispose();
@@ -256,6 +315,20 @@ public class FrameTarefa {
 		});
 
 		tela.setVisible(true);
+
+	}
+
+	private void bloquearVirgula(JTextField localBloqueio) {
+
+		localBloqueio.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String caracteresExcluidos = ",";
+				if (caracteresExcluidos.contains(e.getKeyChar() + "")) {
+					e.consume();
+				}
+			}
+		});
 
 	}
 

@@ -3,6 +3,8 @@ package br.dev.nathan.tarefas.ui;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -59,16 +61,19 @@ public class FrameAlterarFuncionario {
 		labelNome.setBounds(20, 85, 200, 30);
 		txtNome = new JTextField(dadosFuncionario[1]);
 		txtNome.setBounds(20, 115, 350, 30);
+		bloquearVirgula(txtNome);
 
 		labelTelefone = new JLabel("Telefone:");
 		labelTelefone.setBounds(20, 150, 200, 30);
 		txtTelefone = new JTextField(dadosFuncionario[2]);
 		txtTelefone.setBounds(20, 180, 200, 30);
+		bloquearVirgula(txtTelefone);
 
 		labelEmail = new JLabel("E-mail:");
 		labelEmail.setBounds(20, 215, 200, 30);
 		txtEmail = new JTextField(dadosFuncionario[3]);
 		txtEmail.setBounds(20, 245, 300, 30);
+		bloquearVirgula(txtEmail);
 
 		btnAlterar = new JButton("Alterar");
 		btnAlterar.setBounds(20, 290, 100, 40);
@@ -139,6 +144,20 @@ public class FrameAlterarFuncionario {
 		});
 
 		tela.setVisible(true);
+	}
+	
+	private void bloquearVirgula(JTextField localBloqueio) {
+
+		localBloqueio.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				String caracteresExcluidos = ",";
+				if (caracteresExcluidos.contains(e.getKeyChar() + "")) {
+					e.consume();
+				}
+			}
+		});
+
 	}
 
 }
