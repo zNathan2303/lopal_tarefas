@@ -256,7 +256,7 @@ public class FrameTarefa {
 								.withMonth(Integer.valueOf(dadosDataInicio[1]))
 								.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
 
-						if (dataInicio.isAfter(LocalDate.now())) {
+						if (dataInicio.isAfter(LocalDate.now()) || dataInicio == LocalDate.now()) {
 							tarefa.setDataInicial(dataInicio);
 							tarefa.setPrazo(Integer.valueOf(txtPrazo.getText()));
 
