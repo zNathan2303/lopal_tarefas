@@ -2,6 +2,7 @@ package br.dev.nathan.tarefas.dao;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class TarefaDAO {
 	}
 
 	public void gravar() {
-		
+
 		try {
 
 			BufferedWriter bw = ff.getBufferedWriterTarefas();
@@ -30,9 +31,9 @@ public class TarefaDAO {
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 		}
-		
+
 	}
-	
+
 	public void apagar(int linhaASerApagada) {
 		try {
 
@@ -51,13 +52,13 @@ public class TarefaDAO {
 				linhaIndex++;
 			}
 
-			ff.resetArquivoTarefas();
+			ff.limparArquivoTarefas();
 
 			for (String l : linhas) {
-				
+
 				bw.write(l);
 				bw.flush();
-				
+
 				bw.newLine();
 			}
 
@@ -69,8 +70,72 @@ public class TarefaDAO {
 		}
 	}
 	
+	public String buscarTarefa(int tarefaIndex) {
+
+		String dadosTarefa = "";
+		try {
+			BufferedReader br = ff.getBufferedReaderTarefas();
+
+			String linha;
+			int linhaIndex = 0;
+			tarefaIndex += 1;
+
+			while ((linha = br.readLine()) != null) {
+
+				if (linhaIndex == tarefaIndex) {
+					dadosTarefa = linha;
+				}
+				linhaIndex++;
+			}
+
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+		return dadosTarefa;
+
+	}
+
+	public void alterar(int linhaASerModificada) {
+
+		try {
+			BufferedReader br = ff.getBufferedReaderFuncionarios();
+			BufferedWriter bw = ff.getBufferedWriterFuncionarios();
+
+			List<String> linhas = new ArrayList<>();
+			String linha;
+			int linhaIndex = 0;
+			linhaASerModificada += 1;
+
+			while ((linha = br.readLine()) != null) {
+
+				if (linhaIndex != linhaASerModificada) {
+					linhas.add(linha);
+				} else {
+					linhas.add(tarefa.toString());
+				}
+				linhaIndex++;
+			}
+
+			ff.limparArquivoTarefas();
+
+			for (String l : linhas) {
+
+				bw.write(l);
+				bw.flush();
+
+				bw.newLine();
+			}
+
+			bw.write("");
+			bw.flush();
+			
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
 	public List<Tarefa> showTasks() {
-		
+
 		List<Tarefa> tarefas = new ArrayList<>();
 		FuncionarioDAO dao = new FuncionarioDAO(null);
 

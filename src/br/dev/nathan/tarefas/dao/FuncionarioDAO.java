@@ -75,7 +75,7 @@ public class FuncionarioDAO {
 			// Chama o método de reset, que já limpa o arquivo de forma automática,
 			// permitindo que os dados que foram passados para o List linhas possam entrar
 			// no arquivo vazio
-			ff.resetArquivoFuncionarios();
+			ff.limparArquivoFuncionarios();
 
 			// Passa os dados salvos no List linhas para o arquivo
 			for (String l : linhas) {
@@ -150,7 +150,7 @@ public class FuncionarioDAO {
 			}
 
 			
-			ff.resetArquivoFuncionarios();
+			ff.limparArquivoFuncionarios();
 
 			for (String l : linhas) {
 				

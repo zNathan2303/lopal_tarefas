@@ -31,15 +31,13 @@ public class FileFactory {
 		fw = new FileWriter(pathFuncionarios, true);
 		bw = new BufferedWriter(fw);
 		return bw;
-
 	}
 	
-	public BufferedWriter resetArquivoFuncionarios() throws FileNotFoundException, IOException {
+	public BufferedWriter limparArquivoFuncionarios() throws FileNotFoundException, IOException {
 		// É colocado o false para apagar todos os dados do arquivo
 		fw = new FileWriter(pathFuncionarios, false);
 		bw = new BufferedWriter(fw);
 		return bw;
-
 	}
 	
 	public BufferedReader getBufferedReaderTarefas() throws FileNotFoundException, IOException {
@@ -52,14 +50,12 @@ public class FileFactory {
 		fw = new FileWriter(pathTarefas, true);
 		bw = new BufferedWriter(fw);
 		return bw;
-
 	}
 	
-	public BufferedWriter resetArquivoTarefas() throws FileNotFoundException, IOException {
+	public BufferedWriter limparArquivoTarefas() throws FileNotFoundException, IOException {
 		fw = new FileWriter(pathTarefas, false);
 		bw = new BufferedWriter(fw);
 		return bw;
-
 	}
 
 }

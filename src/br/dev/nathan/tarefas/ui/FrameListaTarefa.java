@@ -82,7 +82,7 @@ public class FrameListaTarefa {
 		painel.add(scrollTarefas);
 		painel.add(btnNovo);
 		painel.add(btnExcluir);
-//		painel.add(btnAlterar);
+		painel.add(btnAlterar);
 		painel.add(btnSair);
 
 		btnNovo.addActionListener(new ActionListener() {
@@ -116,6 +116,20 @@ public class FrameListaTarefa {
 							JOptionPane.INFORMATION_MESSAGE);
 				}
 
+			}
+		});
+		
+		btnAlterar.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (tableTarefas.isRowSelected(tableTarefas.getSelectedRow())) {
+					new FrameAlterarTarefa(tela, FrameListaTarefa.this, tableTarefas.getSelectedRow());
+				} else {
+					JOptionPane.showMessageDialog(tela, "Precisa selecionar alguma linha para alterar!", "Erro",
+							JOptionPane.INFORMATION_MESSAGE);
+				}
+				
 			}
 		});
 
