@@ -7,6 +7,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -109,10 +110,8 @@ public class FrameAlterarTarefa {
 		int mesInicio = Integer.valueOf(dataInicialString[1]);
 		int diaInicio = Integer.valueOf(dataInicialString[2]);
 		LocalDate dataInicio = LocalDate.now();
-		dataInicio.withDayOfMonth(diaInicio);
-		dataInicio.withYear(anoInicio);
-		dataInicio.withMonth(mesInicio);
-		txtDataInicial.setText(dataInicio.format(formatoData));
+		LocalDate dataInicioTarefa = dataInicio.withDayOfMonth(diaInicio).withYear(anoInicio).withMonth(mesInicio);
+		txtDataInicial.setText(dataInicioTarefa.format(formatoData));
 		txtDataInicial.setHorizontalAlignment(JTextField.CENTER);
 		txtDataInicial.setBounds(20, 180, 100, 30);
 		txtDataInicial.addKeyListener(new KeyAdapter() {
@@ -133,7 +132,7 @@ public class FrameAlterarTarefa {
 					dataInicio = dataInicio.withYear(Integer.valueOf(dadosDataInicio[2]))
 							.withMonth(Integer.valueOf(dadosDataInicio[1]))
 							.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
-					atualizarDataConclusao(dataInicio, formatoData);
+					atualizarDataConclusao(formatoData);
 					if (dataInicio.isBefore(LocalDate.now())) {
 						JOptionPane.showMessageDialog(tela, "A data de inicio da tarefa não pode ser no passado!",
 								"Aviso", JOptionPane.WARNING_MESSAGE);
@@ -147,7 +146,9 @@ public class FrameAlterarTarefa {
 
 		labelPrazo = new JLabel("Prazo (dias):");
 		labelPrazo.setBounds(20, 215, 200, 30);
-		txtPrazo = new JTextField(dadosTarefa[4]);
+		txtPrazo = new JTextField();
+		String prazo = dadosTarefa[4];
+		txtPrazo.setText("10");
 		txtPrazo.setDocument(new LimitaCaracteres(3));
 		txtPrazo.setBounds(20, 245, 150, 30);
 		txtPrazo.addKeyListener(new KeyAdapter() {
@@ -228,12 +229,12 @@ public class FrameAlterarTarefa {
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-				atualizarDataConclusao(dataInicio, formatoData);
+				atualizarDataConclusao(formatoData);
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				atualizarDataConclusao(dataInicio, formatoData);
+				atualizarDataConclusao(formatoData);
 			}
 
 			@Override
@@ -255,57 +256,65 @@ public class FrameAlterarTarefa {
 				} else {
 
 					try {
-						Tarefa tarefa = new Tarefa();
-						tarefa.setCodigo(Utils.gerarUUID());
-						tarefa.setTitulo(txtTitulo.getText());
-						tarefa.setDescricao(txtDescricao.getText());
+						
+						int resposta = JOptionPane.showConfirmDialog(tela, "Deseja alterar os dados dessa tarefa?",
+								"Alterar dados", JOptionPane.YES_NO_OPTION);
 
-						// Parte do código que desmembra o conteúdo do JTextField de data de inicio da
-						// tarefa para transferir ele como dados de ano, mês e dia, para que possa
-						// passar para a tarefa um LocalDate
-						String[] dadosDataInicio = txtDataInicial.getText().split("/");
-						LocalDate dataInicio = LocalDate.now();
-						dataInicio = dataInicio.withYear(Integer.valueOf(dadosDataInicio[2]))
-								.withMonth(Integer.valueOf(dadosDataInicio[1]))
-								.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
+						if (resposta == 0) {
+							
+							Tarefa tarefa = new Tarefa();
+							tarefa.setCodigo(Utils.gerarUUID());
+							tarefa.setTitulo(txtTitulo.getText());
+							tarefa.setDescricao(txtDescricao.getText());
 
-						if (!dataInicio.isBefore(LocalDate.now())) {
-							tarefa.setDataInicial(dataInicio);
-							tarefa.setPrazo(Integer.valueOf(txtPrazo.getText()));
+							// Parte do código que desmembra o conteúdo do JTextField de data de inicio da
+							// tarefa para transferir ele como dados de ano, mês e dia, para que possa
+							// passar para a tarefa um LocalDate
+							String[] dadosDataInicio = txtDataInicial.getText().split("/");
+							LocalDate dataInicio = LocalDate.now();
+							dataInicio = dataInicio.withYear(Integer.valueOf(dadosDataInicio[2]))
+									.withMonth(Integer.valueOf(dadosDataInicio[1]))
+									.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
 
-							// Também desmembra o conteúdo do JTextField só que da data de conclusão, para
-							// passá-lo como LocalDate para a tarefa
-							String[] dadosDataConclusao = txtDataConclusao.getText().split("/");
-							LocalDate dataConclusao = LocalDate.now();
-							dataConclusao = dataConclusao.withYear(Integer.valueOf(dadosDataConclusao[2]))
-									.withMonth(Integer.valueOf(dadosDataConclusao[1]))
-									.withDayOfMonth(Integer.valueOf(dadosDataConclusao[0]));
-							tarefa.setDataConclusao(dataConclusao);
+							if (!dataInicio.isBefore(LocalDate.now())) {
+								tarefa.setDataInicial(dataInicio);
+								tarefa.setPrazo(Integer.valueOf(txtPrazo.getText()));
 
-							tarefa.setStatus((Status) cboxStatus.getSelectedItem());
+								// Também desmembra o conteúdo do JTextField só que da data de conclusão, para
+								// passá-lo como LocalDate para a tarefa
+								String[] dadosDataConclusao = txtDataConclusao.getText().split("/");
+								LocalDate dataConclusao = LocalDate.now();
+								dataConclusao = dataConclusao.withYear(Integer.valueOf(dadosDataConclusao[2]))
+										.withMonth(Integer.valueOf(dadosDataConclusao[1]))
+										.withDayOfMonth(Integer.valueOf(dadosDataConclusao[0]));
+								tarefa.setDataConclusao(dataConclusao);
 
-							// Estrutura responsável por passar o funcionário selecionado na JComboBox
-							String nome;
-							String nomeSelecionado;
-							List<Funcionario> funcionarios = fDao.showEmployees();
-							for (Funcionario funcionario : funcionarios) {
-								nome = funcionario.getNome();
-								nomeSelecionado = String.valueOf(cboxResponsavel.getSelectedItem());
-								if (nomeSelecionado.equals(nome)) {
-									tarefa.setResponsavel(funcionario);
-									TarefaDAO dao = new TarefaDAO(tarefa);
-									dao.gravar();
+								tarefa.setStatus((Status) cboxStatus.getSelectedItem());
+
+								// Estrutura responsável por passar o funcionário selecionado na JComboBox
+								String nome;
+								String nomeSelecionado;
+								List<Funcionario> funcionarios = fDao.showEmployees();
+								for (Funcionario funcionario : funcionarios) {
+									nome = funcionario.getNome();
+									nomeSelecionado = String.valueOf(cboxResponsavel.getSelectedItem());
+									if (nomeSelecionado.equals(nome)) {
+										tarefa.setResponsavel(funcionario);
+										TarefaDAO dao = new TarefaDAO(tarefa);
+										dao.gravar();
+									}
 								}
+
+								frameLista.atualizarTabela();
+
+								JOptionPane.showMessageDialog(tela, "Alterado com sucesso!", "Sucesso",
+										JOptionPane.INFORMATION_MESSAGE);
+								limparFormulario();
+							} else {
+								JOptionPane.showMessageDialog(tela, "A data de inicio está no passado!", "Erro",
+										JOptionPane.ERROR_MESSAGE);
 							}
-
-							frameLista.atualizarTabela();
-
-							JOptionPane.showMessageDialog(tela, "Gravado com sucesso!", "Sucesso",
-									JOptionPane.INFORMATION_MESSAGE);
-							limparFormulario();
-						} else {
-							JOptionPane.showMessageDialog(tela, "A data de inicio está no passado!", "Erro",
-									JOptionPane.ERROR_MESSAGE);
+							
 						}
 
 					} catch (Exception e2) {
@@ -360,9 +369,14 @@ public class FrameAlterarTarefa {
 		cboxResponsavel.setSelectedItem(null);
 	}
 
-	private void atualizarDataConclusao(LocalDate dataInicio, DateTimeFormatter formatoData) {
+	private void atualizarDataConclusao(DateTimeFormatter formatoData) {
+		String[] dadosDataInicio = txtDataInicial.getText().split("/");
+		LocalDate dataAtual = LocalDate.now();
+		LocalDate dataInicio = dataAtual.withYear(Integer.valueOf(dadosDataInicio[2]))
+				.withMonth(Integer.valueOf(dadosDataInicio[1]))
+				.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
 		if (!txtPrazo.getText().isEmpty()) {
-			long prazo = Integer.parseInt(txtPrazo.getText());
+			int prazo = Integer.parseInt(txtPrazo.getText());
 			txtDataConclusao.setText(dataInicio.plusDays(prazo).format(formatoData));
 		}
 	}
