@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.text.ParseException;
@@ -130,11 +131,11 @@ public class FrameTarefa {
 			public void focusLost(FocusEvent e) {
 				try {
 					String[] dadosDataInicio = txtDataInicial.getText().split("/");
-					LocalDate dataInicio = LocalDate.now();
-					dataInicio = dataInicio.withYear(Integer.valueOf(dadosDataInicio[2]))
+					LocalDate dataAtual = LocalDate.now();
+					LocalDate dataInicio = dataAtual.withYear(Integer.valueOf(dadosDataInicio[2]))
 							.withMonth(Integer.valueOf(dadosDataInicio[1]))
 							.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
-					atualizarDataConclusao(dataInicio, formatoData);
+					atualizarDataConclusao(formatoData);
 					if (dataInicio.isBefore(LocalDate.now())) {
 						JOptionPane.showMessageDialog(tela, "A data de inicio da tarefa não pode ser no passado!",
 								"Aviso", JOptionPane.WARNING_MESSAGE);
@@ -215,12 +216,12 @@ public class FrameTarefa {
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-				atualizarDataConclusao(dataInicio, formatoData);
+				atualizarDataConclusao(formatoData);
 			}
 
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				atualizarDataConclusao(dataInicio, formatoData);
+				atualizarDataConclusao(formatoData);
 			}
 
 			@Override
@@ -256,7 +257,7 @@ public class FrameTarefa {
 								.withMonth(Integer.valueOf(dadosDataInicio[1]))
 								.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
 
-						if (dataInicio.isAfter(LocalDate.now()) || dataInicio == LocalDate.now()) {
+						if (!dataInicio.isBefore(LocalDate.now())) {
 							tarefa.setDataInicial(dataInicio);
 							tarefa.setPrazo(Integer.valueOf(txtPrazo.getText()));
 
@@ -347,9 +348,14 @@ public class FrameTarefa {
 		cboxResponsavel.setSelectedItem(null);
 	}
 
-	private void atualizarDataConclusao(LocalDate dataInicio, DateTimeFormatter formatoData) {
+	private void atualizarDataConclusao(DateTimeFormatter formatoData) {
+		String[] dadosDataInicio = txtDataInicial.getText().split("/");
+		LocalDate dataAtual = LocalDate.now();
+		LocalDate dataInicio = dataAtual.withYear(Integer.valueOf(dadosDataInicio[2]))
+				.withMonth(Integer.valueOf(dadosDataInicio[1]))
+				.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
 		if (!txtPrazo.getText().isEmpty()) {
-			long prazo = Integer.parseInt(txtPrazo.getText());
+			int prazo = Integer.parseInt(txtPrazo.getText());
 			txtDataConclusao.setText(dataInicio.plusDays(prazo).format(formatoData));
 		}
 	}

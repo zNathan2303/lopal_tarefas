@@ -109,9 +109,9 @@ public class FrameAlterarTarefa {
 		int mesInicio = Integer.valueOf(dataInicialString[1]);
 		int diaInicio = Integer.valueOf(dataInicialString[2]);
 		LocalDate dataInicio = LocalDate.now();
+		dataInicio.withDayOfMonth(diaInicio);
 		dataInicio.withYear(anoInicio);
 		dataInicio.withMonth(mesInicio);
-		dataInicio.withDayOfMonth(diaInicio);
 		txtDataInicial.setText(dataInicio.format(formatoData));
 		txtDataInicial.setHorizontalAlignment(JTextField.CENTER);
 		txtDataInicial.setBounds(20, 180, 100, 30);
@@ -269,7 +269,7 @@ public class FrameAlterarTarefa {
 								.withMonth(Integer.valueOf(dadosDataInicio[1]))
 								.withDayOfMonth(Integer.valueOf(dadosDataInicio[0]));
 
-						if (dataInicio.isAfter(LocalDate.now()) || dataInicio == LocalDate.now()) {
+						if (!dataInicio.isBefore(LocalDate.now())) {
 							tarefa.setDataInicial(dataInicio);
 							tarefa.setPrazo(Integer.valueOf(txtPrazo.getText()));
 
